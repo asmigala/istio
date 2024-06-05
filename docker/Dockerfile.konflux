@@ -28,7 +28,8 @@ RUN cp ./tools/packaging/common/envoy_bootstrap.json /tmp/out/envoy_bootstrap.js
 
 ###########################################################################
 #@follow_tag(registry.redhat.io/ubi9/ubi-minimal:latest)
-FROM registry.redhat.io/ubi9/ubi-minimal:latest
+# TODO: why .access. ?
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest 
 
 # TODO: we should unify the format we use for versions, in render_vars.in we use a `v` prefix
 ENV ISTIO_VERSION="1.22-konflux"
