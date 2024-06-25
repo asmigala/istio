@@ -1,4 +1,4 @@
-FROM perl:5.32.1
+FROM perl:5.40.0
 
 RUN git clone https://github.com/wireghoul/dotdotpwn
 WORKDIR /dotdotpwn
