@@ -12,7 +12,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-FROM gradle:4.8.1 as builder
+FROM gradle:4.10.3 as builder
 
 # Not sure why but we need root to build. Ignore lint error, this is for a multistage builder so it doesn't matter.
 # hadolint ignore=DL3002
