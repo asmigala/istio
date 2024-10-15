@@ -129,7 +129,7 @@ func CreateIngressKubeSecret(t framework.TestContext, credName string,
 
 	// Get namespace for ingress gateway pod.
 	istioCfg := istio.DefaultConfigOrFail(t, t)
-	systemNS := namespace.ClaimOrFail(t, t, istioCfg.SystemNamespace)
+	systemNS := namespace.ClaimOrFail(t, t, istioCfg.IngressGatewayServiceNamespace)
 	CreateIngressKubeSecretInNamespace(t, credName, ingressType, ingressCred, isCompoundAndNotGeneric, systemNS.Name(), clusters...)
 }
 
