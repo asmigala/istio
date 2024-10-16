@@ -319,12 +319,15 @@ metadata:
 spec:
   controllerName: istio.io/gateway-controller
 `).
-		YAML("", fmt.Sprintf(`
+		Eval("", map[string]any{
+			"IngressGatewayServiceNamespace": i.Settings().IngressGatewayServiceNamespace,
+			"AppsNamespace": apps.Namespace.Name(),
+		}, `
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: Gateway
 metadata:
   name: gateway
-  namespace: istio-system
+  namespace: {{ .IngressGatewayServiceNamespace }}
 spec:
   addresses:
   - value: istio-ingressgateway
@@ -356,7 +359,7 @@ spec:
       certificateRefs:
       - kind: Secret
         name: test-gateway-cert-cross
-        namespace: "%s"
+        namespace: "{{ .AppsNamespace}}"
   - name: tls-same
     hostname: same-namespace.domain.example
     port: 443
@@ -369,8 +372,10 @@ spec:
       certificateRefs:
       - kind: Secret
         name: test-gateway-cert-same
-`, apps.Namespace.Name())).
-		YAML(apps.Namespace.Name(), `
+`).
+		Eval(apps.Namespace.Name(), map[string]any{
+			"IngressGatewayServiceNamespace": i.Settings().IngressGatewayServiceNamespace,
+		}, `
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: HTTPRoute
 metadata:
@@ -379,7 +384,7 @@ spec:
   hostnames: ["my.domain.example"]
   parentRefs:
   - name: gateway
-    namespace: istio-system
+    namespace: {{ .IngressGatewayServiceNamespace }}
   rules:
   - matches:
     - path:
@@ -396,7 +401,7 @@ metadata:
 spec:
   parentRefs:
   - name: gateway
-    namespace: istio-system
+    namespace: {{ .IngressGatewayServiceNamespace }}
   rules:
   - backendRefs:
     - name: b
@@ -412,7 +417,7 @@ spec:
     kind: Service
     name: b
   - name: gateway
-    namespace: istio-system
+    namespace: {{ .IngressGatewayServiceNamespace }}
   hostnames: ["b"]
   rules:
   - matches:
@@ -439,7 +444,7 @@ spec:
     kind: Service
     name: c
   - name: gateway
-    namespace: istio-system
+    namespace: {{ .IngressGatewayServiceNamespace }}
   rules:
   - matches:
     - method:
@@ -462,7 +467,7 @@ spec:
   parentRefs:
   - name: gateway
     sectionName: tls-same
-    namespace: istio-system
+    namespace: {{ .IngressGatewayServiceNamespace }}
   rules:
   - backendRefs:
     - name: b
@@ -476,26 +481,25 @@ spec:
   parentRefs:
   - name: gateway
     sectionName: tls-cross
-    namespace: istio-system
+    namespace: {{ .IngressGatewayServiceNamespace }}
   rules:
   - backendRefs:
     - name: b
       port: 80
-`).YAML(apps.Namespace.Name(), fmt.Sprintf(`
+---
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: ReferenceGrant
 metadata:
   name: allow-gateways-to-ref-secrets
-  namespace: "%s"
 spec:
   from:
   - group: gateway.networking.k8s.io
     kind: Gateway
-    namespace: istio-system
+    namespace: {{ .IngressGatewayServiceNamespace }}
   to:
   - group: ""
     kind: Secret
-`, apps.Namespace.Name())).
+`).
 		ApplyOrFail(t)
 	for _, ingr := range istio.IngressesOrFail(t, t) {
 		t.NewSubTest(ingr.Cluster().StableName()).Run(func(t framework.TestContext) {
