@@ -104,6 +104,7 @@ func TestGatewayConformance(t *testing.T) {
 			hostnameType := v1.AddressType("Hostname")
 			istioVersion, _ := env.ReadVersion()
 			opts := suite.ConformanceOptions{
+				BaseManifests:           "gateway-conformance-manifests.yaml",
 				Client:                   c,
 				Clientset:                gatewayConformanceInputs.Client.Kube(),
 				ClientOptions:            clientOptions,
@@ -111,7 +112,7 @@ func TestGatewayConformance(t *testing.T) {
 				GatewayClassName:         "istio",
 				Debug:                    scopes.Framework.DebugEnabled(),
 				CleanupBaseResources:     gatewayConformanceInputs.Cleanup,
-				ManifestFS:               []fs.FS{&conformance.Manifests},
+				ManifestFS:               []fs.FS{os.DirFS("testdata"), &conformance.Manifests},
 				SupportedFeatures:        features.SetsToNamesSet(supportedFeatures),
 				SkipTests:                maps.Keys(skippedTests),
 				UsableNetworkAddresses:   []v1.GatewayAddress{{Value: "infra-backend-v1.gateway-conformance-infra.svc.cluster.local", Type: &hostnameType}},
