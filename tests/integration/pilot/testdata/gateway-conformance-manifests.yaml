@@ -678,9 +678,9 @@ metadata:
 spec:
   ports:
   - name: udp-dns
-    port: 5353
+    port: 5300
     protocol: UDP
-    targetPort: 5353
+    targetPort: 5300
   selector:
     app: udp
 ---
@@ -722,11 +722,11 @@ metadata:
   namespace: gateway-conformance-infra
 data:
   Corefile: |
-    .:5353 {
+    .:5300 {
         forward . 8.8.8.8 9.9.9.9
         log
         errors
     }
-    foo.bar.com:5353 {
+    foo.bar.com:5300 {
       whoami
     }
